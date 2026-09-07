@@ -53,6 +53,7 @@ export default function TiltedCard({
   });
 
   const [lastY, setLastY] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
 
   function handleMouse(e: React.MouseEvent<HTMLElement>) {
     if (!ref.current) return;
@@ -76,11 +77,13 @@ export default function TiltedCard({
   }
 
   function handleMouseEnter() {
+    setIsHovering(true);
     scale.set(scaleOnHover);
     opacity.set(1);
   }
 
   function handleMouseLeave() {
+    setIsHovering(false);
     opacity.set(0);
     scale.set(1);
     rotateX.set(0);
@@ -119,15 +122,20 @@ export default function TiltedCard({
         <motion.img
           src={imageSrc}
           alt={altText}
-          className="absolute -inset-px max-w-none object-cover will-change-transform [transform:translateZ(0)]"
+          loading="lazy"
+          className="absolute -inset-px max-w-none object-cover [transform:translateZ(0)]"
           style={{
             width: "calc(100% + 2px)",
-            height: "calc(100% + 2px)"
+            height: "calc(100% + 2px)",
+            willChange: isHovering ? "transform" : "auto"
           }}
         />
 
         {displayOverlayContent && overlayContent && (
-          <motion.div className="absolute -inset-px z-[2] will-change-transform [transform:translateZ(0)]">
+          <motion.div
+            className="absolute -inset-px z-[2] [transform:translateZ(0)]"
+            style={{ willChange: isHovering ? "transform" : "auto" }}
+          >
             {overlayContent}
           </motion.div>
         )}

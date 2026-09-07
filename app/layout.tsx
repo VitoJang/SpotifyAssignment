@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Geist, Space_Grotesk } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display" });

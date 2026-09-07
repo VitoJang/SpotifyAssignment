@@ -28,6 +28,11 @@ export function InfiniteList({
   const loadingRef = useRef(false);
   const itemsRef = useRef(items);
   itemsRef.current = items;
+  // Items up to this count came from the server render — never hide them
+  // behind a JS entrance animation, or a slow/no-JS hydration leaves the
+  // (already-visible-in-the-HTML) results invisible. Only items loaded
+  // afterward, via scroll, get the fade-in.
+  const initialCountRef = useRef(initialItems.length);
   const reducedMotion = usePrefersReducedMotion();
   const hasMore = items.length < total;
 
@@ -76,24 +81,21 @@ export function InfiniteList({
   }
 
   return (
-    <motion.div
-      key={type}
-      initial={reducedMotion ? false : { opacity: 0, y: 12, filter: "brightness(0.92) saturate(0.85)" }}
-      animate={{ opacity: 1, y: 0, filter: "brightness(1) saturate(1)" }}
-      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <>
       <div className="grid">
         {items.map((item, i) => {
           const card = toCardProps(item, type);
+          const isNewlyLoaded = i >= initialCountRef.current;
+          const batchIndex = i - initialCountRef.current;
           return (
             <motion.div
               className="tile"
               key={card.id}
-              initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+              initial={!isNewlyLoaded || reducedMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 duration: 0.28,
-                delay: reducedMotion ? 0 : Math.min(i, 9) * 0.04,
+                delay: reducedMotion ? 0 : Math.min(batchIndex, 9) * 0.04,
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
@@ -130,6 +132,6 @@ export function InfiniteList({
           )}
         </div>
       )}
-    </motion.div>
+    </>
   );
 }

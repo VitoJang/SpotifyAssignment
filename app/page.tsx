@@ -35,7 +35,11 @@ export default async function Home({
         <AnimatedTitle text="Spotify Search" />
       </h1>
       <form>
+        <label htmlFor="search-q" className="sr-only">
+          Search songs or albums
+        </label>
         <input
+          id="search-q"
           type="search"
           name="q"
           defaultValue={query}
@@ -46,7 +50,7 @@ export default async function Home({
       </form>
 
       <Tabs value={type}>
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 h-11">
           <TabsTrigger
             value="track"
             nativeButton={false}
