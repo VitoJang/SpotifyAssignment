@@ -34,4 +34,4 @@ coverage
 # local agent / cursor noise (you have these in the tree)
 .cursor
 .agents
-.claude/settings.local.json
+.claude
