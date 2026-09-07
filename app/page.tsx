@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { searchSpotify } from "@/lib/spotify";
 
 interface Image {
   url: string;
@@ -23,47 +21,37 @@ interface Album {
 interface SearchResponse {
   tracks?: { items: Track[] };
   albums?: { items: Album[] };
-  error?: string;
 }
 
-export default function Home() {
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<SearchResponse | null>(null);
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const query = (await searchParams).q?.trim() ?? "";
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-
-    setLoading(true);
-    setError(null);
+  let results: SearchResponse | null = null;
+  let error: string | null = null;
+  if (query) {
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-      const data: SearchResponse = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Search failed");
-      setResults(data);
+      results = await searchSpotify(query);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed");
-      setResults(null);
-    } finally {
-      setLoading(false);
+      console.error(err);
+      error = "Search failed";
     }
   }
 
   return (
     <main>
       <h1>Spotify Search</h1>
-      <form onSubmit={handleSubmit}>
+      <form>
         <input
           type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search songs or albums..."
+          name="q"
+          defaultValue={query}
+          placeholder="Search songs, albums, or artists..."
         />
-        <button type="submit" disabled={loading}>
-          {loading ? "Searching…" : "Search"}
-        </button>
+        <button type="submit">Search</button>
       </form>
 
       {error && <p className="status">{error}</p>}
