@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import TiltedCard from "@/components/TiltedCard";
 import { toCardProps, type Album, type SearchType, type Track } from "@/lib/spotify-types";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
@@ -75,12 +76,27 @@ export function InfiniteList({
   }
 
   return (
-    <>
+    <motion.div
+      key={type}
+      initial={reducedMotion ? false : { opacity: 0, y: 12, filter: "brightness(0.92) saturate(0.85)" }}
+      animate={{ opacity: 1, y: 0, filter: "brightness(1) saturate(1)" }}
+      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="grid">
-        {items.map((item) => {
+        {items.map((item, i) => {
           const card = toCardProps(item, type);
           return (
-            <div className="tile" key={card.id}>
+            <motion.div
+              className="tile"
+              key={card.id}
+              initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.28,
+                delay: reducedMotion ? 0 : Math.min(i, 9) * 0.04,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
               <TiltedCard
                 imageSrc={card.image ?? FALLBACK_IMAGE}
                 altText={card.title}
@@ -100,15 +116,20 @@ export function InfiniteList({
                   </div>
                 }
               />
-            </div>
+            </motion.div>
           );
         })}
       </div>
       {hasMore && (
-        <div ref={sentinelRef} className="status">
-          {loading ? "Loading more…" : ""}
+        <div ref={sentinelRef} className="load-more">
+          {loading && (
+            <>
+              <span className="spinner" aria-hidden="true" />
+              <span className="sr-only">Loading more results</span>
+            </>
+          )}
         </div>
       )}
-    </>
+    </motion.div>
   );
 }

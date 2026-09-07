@@ -11,6 +11,7 @@
   --muted-text: #6b6b64;
   --accent-color: #1db954;
   --accent-color-hover: #169c46;
+  --accent-ink: #04120a;
   --card-bg: #ffffff;
   --muted: oklch(0.97 0 0);
   --accent: oklch(0.97 0 0);
@@ -72,6 +73,17 @@ main {
   padding: 2.5rem 1.5rem 4rem;
 }
 
+main[data-type="album"] {
+  --accent-color: #509bf5;
+  --accent-color-hover: #3d82d6;
+  --accent-ink: #071525;
+}
+
+main[data-type="track"],
+main[data-type="album"] {
+  transition: --accent-color 280ms ease, --accent-color-hover 280ms ease;
+}
+
 h1 {
   font-family: var(--font-display);
   font-size: 2.25rem;
@@ -94,6 +106,13 @@ input[type="search"] {
   font-size: 1rem;
   background: var(--card-bg);
   color: var(--fg);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+input[type="search"]:focus-visible {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 25%, transparent);
 }
 
 button {
@@ -101,25 +120,23 @@ button {
   border: none;
   border-radius: 8px;
   background: var(--accent-color);
-  color: #04120a;
+  color: var(--accent-ink);
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease, transform 160ms ease-out;
 }
 
 button:hover:not(:disabled) {
   background: var(--accent-color-hover);
 }
 
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
 button:disabled {
   opacity: 0.6;
   cursor: default;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.001ms !important;
-    transition-duration: 0.001ms !important;
-  }
 }
 
 h2 {
@@ -194,6 +211,40 @@ h2 {
 
 .status {
   color: var(--muted-text);
+}
+
+.load-more {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    /* Drop the movement, keep a non-motion cue that it's still loading. */
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
 }
 
 @theme inline {
