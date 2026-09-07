@@ -1,97 +1,75 @@
+import Link from "next/link";
+import { AnimatedTitle } from "@/components/animated-title";
+import { InfiniteList } from "@/components/infinite-list";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { searchSpotify } from "@/lib/spotify";
-
-interface Image {
-  url: string;
-}
-
-interface Track {
-  id: string;
-  name: string;
-  artists: { name: string }[];
-  album: { images: Image[] };
-}
-
-interface Album {
-  id: string;
-  name: string;
-  artists: { name: string }[];
-  images: Image[];
-}
-
-interface SearchResponse {
-  tracks?: { items: Track[] };
-  albums?: { items: Album[] };
-}
+import type { Album, SearchType, Track } from "@/lib/spotify-types";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; type?: string }>;
 }) {
-  const query = (await searchParams).q?.trim() ?? "";
+  const params = await searchParams;
+  const query = params.q?.trim() ?? "";
+  const type: SearchType = params.type === "album" ? "album" : "track";
 
-  let results: SearchResponse | null = null;
+  let items: (Track | Album)[] = [];
+  let total = 0;
   let error: string | null = null;
   if (query) {
     try {
-      results = await searchSpotify(query);
+      ({ items, total } = await searchSpotify(query, type));
     } catch (err) {
       console.error(err);
       error = "Search failed";
     }
   }
 
+  const tabHref = (t: SearchType) =>
+    `/?${new URLSearchParams({ ...(query && { q: query }), type: t })}`;
+
   return (
     <main>
-      <h1>Spotify Search</h1>
+      <h1>
+        <AnimatedTitle text="Spotify Search" />
+      </h1>
       <form>
         <input
           type="search"
           name="q"
           defaultValue={query}
-          placeholder="Search songs, albums, or artists..."
+          placeholder="Search songs or albums..."
         />
+        <input type="hidden" name="type" value={type} />
         <button type="submit">Search</button>
       </form>
 
+      <Tabs value={type}>
+        <TabsList>
+          <TabsTrigger
+            value="track"
+            nativeButton={false}
+            render={<Link href={tabHref("track")}>Songs</Link>}
+          />
+          <TabsTrigger
+            value="album"
+            nativeButton={false}
+            render={<Link href={tabHref("album")}>Albums</Link>}
+          />
+        </TabsList>
+      </Tabs>
+
       {error && <p className="status">{error}</p>}
 
-      {results?.tracks?.items && results.tracks.items.length > 0 && (
-        <>
-          <h2>Songs</h2>
-          <div className="grid">
-            {results.tracks.items.map((track) => (
-              <div className="card" key={track.id}>
-                <img src={track.album.images[0]?.url} alt={track.name} />
-                <div className="card-info">
-                  <div className="card-title">{track.name}</div>
-                  <div className="card-subtitle">
-                    {track.artists.map((a) => a.name).join(", ")}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
-      {results?.albums?.items && results.albums.items.length > 0 && (
-        <>
-          <h2>Albums</h2>
-          <div className="grid">
-            {results.albums.items.map((album) => (
-              <div className="card" key={album.id}>
-                <img src={album.images[0]?.url} alt={album.name} />
-                <div className="card-info">
-                  <div className="card-title">{album.name}</div>
-                  <div className="card-subtitle">
-                    {album.artists.map((a) => a.name).join(", ")}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
+      {query && !error && (
+        <InfiniteList
+          key={`${type}:${query}`}
+          query={query}
+          type={type}
+          initialItems={items}
+          initialTotal={total}
+        />
       )}
     </main>
   );
