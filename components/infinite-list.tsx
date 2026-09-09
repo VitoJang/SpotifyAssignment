@@ -44,13 +44,18 @@ export function InfiniteList({
       (entries) => {
         if (entries[0].isIntersecting) void loadMore();
       },
-      { rootMargin: "400px" },
+      // Prefetch a bit before the fold; keep this modest so wide grids
+      // don't treat the whole page as "already at the bottom."
+      { rootMargin: "200px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
-    // loadMore reads latest length via itemsRef; omit it from deps.
+    // Re-subscribe when `items.length` changes. IntersectionObserver only
+    // fires on *transitions*; on a 4-col grid each page adds little height
+    // so the sentinel can stay intersecting and never re-fire. Calling
+    // observe() again after a page loads re-checks and continues filling.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, query, type]);
+  }, [hasMore, query, type, items.length]);
 
   async function loadMore() {
     // Sync lock: React state `loading` is too late to stop double IntersectionObserver fires.

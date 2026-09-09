@@ -94,7 +94,7 @@ export default function TiltedCard({
   return (
     <figure
       ref={ref}
-      className="relative w-full h-full [perspective:800px] flex flex-col items-center justify-center"
+      className="relative w-full h-full perspective-midrange flex flex-col items-center justify-center"
       style={{
         height: containerHeight,
         width: containerWidth
@@ -110,7 +110,7 @@ export default function TiltedCard({
       )}
 
       <motion.div
-        className="relative overflow-hidden rounded-[15px] [transform-style:preserve-3d]"
+        className="relative overflow-hidden rounded-[15px] transform-3d"
         style={{
           width: imageWidth,
           height: imageHeight,
@@ -123,7 +123,7 @@ export default function TiltedCard({
           src={imageSrc}
           alt={altText}
           loading="lazy"
-          className="absolute -inset-px max-w-none object-cover [transform:translateZ(0)]"
+          className="absolute -inset-px max-w-none object-cover transform-[translateZ(0)]"
           style={{
             width: "calc(100% + 2px)",
             height: "calc(100% + 2px)",
@@ -133,7 +133,7 @@ export default function TiltedCard({
 
         {displayOverlayContent && overlayContent && (
           <motion.div
-            className="absolute -inset-px z-[2] [transform:translateZ(0)]"
+            className="absolute -inset-px z-2 transform-[translateZ(0)]"
             style={{ willChange: isHovering ? "transform" : "auto" }}
           >
             {overlayContent}
@@ -143,7 +143,7 @@ export default function TiltedCard({
 
       {showTooltip && (
         <motion.figcaption
-          className="pointer-events-none absolute left-0 top-0 rounded-[4px] bg-white px-[10px] py-[4px] text-[10px] text-[#2d2d2d] opacity-0 z-[3] hidden sm:block"
+          className="pointer-events-none absolute left-0 top-0 rounded-lg bg-white px-2.5 py-1 text-[10px] text-[#2d2d2d] opacity-0 z-3 hidden sm:block"
           style={{
             x,
             y,

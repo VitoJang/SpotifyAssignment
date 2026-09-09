@@ -49,18 +49,16 @@ export default async function Home({
         <button type="submit">Search</button>
       </form>
 
-      <Tabs value={type}>
-        <TabsList className="mb-4 h-11">
+      <Tabs value={type} className="search-tabs">
+        <TabsList>
           <TabsTrigger
             value="track"
             nativeButton={false}
-            className="data-active:bg-[var(--accent-color)] data-active:text-[var(--accent-ink)] data-active:shadow-none dark:data-active:bg-[var(--accent-color)] dark:data-active:text-[var(--accent-ink)]"
             render={<Link href={tabHref("track")}>Songs</Link>}
           />
           <TabsTrigger
             value="album"
             nativeButton={false}
-            className="data-active:bg-[var(--accent-color)] data-active:text-[var(--accent-ink)] data-active:shadow-none dark:data-active:bg-[var(--accent-color)] dark:data-active:text-[var(--accent-ink)]"
             render={<Link href={tabHref("album")}>Albums</Link>}
           />
         </TabsList>
